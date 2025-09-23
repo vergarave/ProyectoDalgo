@@ -1,4 +1,3 @@
-
 // Daniel Vergara - 202320392
 // Camila Caballero - 202320565
 
@@ -9,7 +8,6 @@ public class ProblemaP1 {
     public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
         int numCasos = Integer.parseInt(br.readLine());
 
         ProblemaP1 instance = new ProblemaP1();
@@ -25,64 +23,59 @@ public class ProblemaP1 {
                 P[j] = Integer.parseInt(tokens[2 + j]);
             }
 
-            int resp = instance.resolverCaso(k, n, P);
-
+            long resp = instance.resolverCaso(k, n, P);
             System.out.println(resp);
         }
     }
 
-    public int resolverCaso(int k, int n, int[] P) {
-        
-        int[] C = new int[n + 1];
-        for (int x = 0;x <= n; x++) {
-            C[x] = calcularCreativad(x, P);
+    public long resolverCaso(int k, int n, int[] P) {
+        final long NEG_INF = -1_000_000_000_000_000L;
+
+        long[] C = new long[n + 1];
+        for (int x = 0; x <= n; x++) {
+            C[x] = calcularCreatividad(x, P);
         }
 
-        int[][] dp = new int[k + 1][n + 1];
-        for (int i = 0; i <= k; i++) {
-            Arrays.fill(dp[i], -1000000000);
-        }
-        dp[0][0] = 0;
-        for (int i = 1; i <= k; i++) {
-            dp[i][0] = 0;
-        }
+        long[] prev = new long[n + 1];
+        long[] curr = new long[n + 1];
+        Arrays.fill(prev, NEG_INF);
+        prev[0] = 0;
 
         for (int i = 1; i <= k; i++) {
+            Arrays.fill(curr, NEG_INF);
             for (int j = 0; j <= n; j++) {
-                int mejor = -1000000000;
+                long mejor = NEG_INF;
                 for (int x = 0; x <= j; x++) {
-                    if (dp[i-1][j-x] + C[x] != -1000000000) {
-                        mejor = Math.max(mejor, dp[i-1][j-x] + C[x]);
-                        
+                    if (prev[j - x] > NEG_INF / 2) {
+                        mejor = Math.max(mejor, prev[j - x] + C[x]);
                     }
                 }
-                dp[i][j] = mejor;
+                curr[j] = mejor;
             }
+         
+            long[] tmp = prev;
+            prev = curr;
+            curr = tmp;
         }
 
-
-        return dp[k][n];
+        return prev[n];
     }
 
-    public int calcularCreativad(int x, int[] P) {
-        int total = 0;
+    public long calcularCreatividad(int x, int[] P) {
+        long total = 0;
         int pos = 0;
-        while (x > 0) {
+        while (x > 0 && pos < 5) { 
             int digito = x % 10;
-            if (digito == 3){
-                total += 1 * P[pos];
+            if (digito == 3) {
+                total += P[pos];
             } else if (digito == 6) {
-                total += 2 * P[pos];
+                total += 2L * P[pos];
             } else if (digito == 9) {
-                total += 3 * P[pos];
-            } else{
-                total += 0 * P[pos];
+                total += 3L * P[pos];
             }
-            x = x / 10;
-            pos += 1;
+            x /= 10;
+            pos++;
         }
-
         return total;
     }
-
 }
